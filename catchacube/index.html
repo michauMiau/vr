@@ -16,9 +16,9 @@
         <!-- Point score display -->
         <a-entity id="point-score" text="value: Points: 0; align: center; width: 3; color: #FF5733; position: 0 3 -5"></a-entity>
         
-        <!-- WebXR hand controls -->
-        <a-entity hand-controls="left" raycaster="objects: .catchable" visible="true"></a-entity>
-        <a-entity hand-controls="right" raycaster="objects: .catchable" visible="true"></a-entity>
+        <!-- Oculus Touch controllers -->
+        <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable"></a-entity>
+        <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable"></a-entity>
     </a-scene>
 
     <script>
