@@ -13,17 +13,17 @@
         
         <a-entity id="falling-cubes"></a-entity>
         
-        <!-- Point score display -->
-        <a-entity id="point-score" text="value: Points: 0; align: center; width: 3; color: #FF5733; position: 0 3 -5"></a-entity>
-        
         <!-- Oculus Touch controllers -->
-        <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable"></a-entity>
-        <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable"></a-entity>
+        <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable"></a-entity>
+        <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable"></a-entity>
+        
+        <!-- Points counter displayed on the sky -->
+        <a-text id="point-score-sky" value="Points: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
     </a-scene>
 
     <script>
         const fallingCubes = document.querySelector('#falling-cubes');
-        const pointScoreEntity = document.querySelector('#point-score');
+        const pointScoreEntity = document.querySelector('#point-score-sky');
 
         let pointScore = 0;
 
@@ -48,11 +48,6 @@
             cube.setAttribute('width', '0.5');
             cube.setAttribute('height', '0.5');
             cube.setAttribute('depth', '0.5');
-            cube.addEventListener('click', () => {
-                fallingCubes.removeChild(cube);
-                pointScore += 10; // Increase point score when cube is destroyed
-                updatePointScore();
-            });
             fallingCubes.appendChild(cube);
 
             const fallSpeed = 0.2; // meters per second
@@ -61,8 +56,10 @@
             const updatePosition = () => {
                 position.y -= fallSpeed * (updateInterval / 1000); // Update y position based on fallSpeed and time interval
                 cube.setAttribute('position', position);
-                if (position.y < -1.5) { // If cube falls below the floor, destroy it
+                if (position.y < -1.5) { // If cube falls below the floor, destroy it and deduct points
                     fallingCubes.removeChild(cube);
+                    pointScore -= 5; // Deduct points when cube is destroyed by touching the floor
+                    updatePointScore();
                 } else {
                     setTimeout(updatePosition, updateInterval);
                 }
@@ -72,8 +69,22 @@
         }
 
         function updatePointScore() {
-            pointScoreEntity.setAttribute('text', `value: Points: ${pointScore}; align: center; width: 3; color: #FF5733; position: 0 3 -5`);
+            pointScoreEntity.setAttribute('value', `Points: ${pointScore}`);
         }
+
+        // Collision event listener
+        document.addEventListener('collisions', (event) => {
+            const { detail } = event;
+            const { els } = detail;
+            if (els.length > 0) {
+                const hitCube = els[0];
+                if (hitCube.classList.contains('catchable')) {
+                    fallingCubes.removeChild(hitCube);
+                    pointScore += 10;
+                    updatePointScore();
+                }
+            }
+        });
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
         updatePointScore();
