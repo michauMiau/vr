@@ -5,34 +5,28 @@
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 </head>
 <body>
-    <a-scene vr-mode-ui="enabled: false">
+    <a-scene vr-mode-ui="enabled: true">
         <a-sky color="#ECECEC"></a-sky>
         <a-entity id="player" camera position="0 1.6 0" look-controls>
             <a-entity cursor="rayOrigin: mouse" raycaster="objects: .catchable" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: black; shader: flat"></a-entity>
             <!-- Add visible controllers -->
-            <a-entity oculus-touch-controls="hand: left"></a-entity>
-            <a-entity oculus-touch-controls="hand: right"></a-entity>
+            <a-entity oculus-touch-controls="hand: left" raycaster="objects: #floor"></a-entity>
+            <a-entity oculus-touch-controls="hand: right" raycaster="objects: #floor"></a-entity>
         </a-entity>
+        
+        <!-- Visible floor at a fixed height -->
+        <a-plane id="floor" position="0 -1.5 0" rotation="-90 0 0" width="10" height="10" color="#00FF00"></a-plane>
         
         <a-entity id="falling-cubes"></a-entity>
     </a-scene>
 
     <script>
         const fallingCubes = document.querySelector('#falling-cubes');
-
+        const floorEntity = document.querySelector('#floor');
         const player = document.querySelector('#player');
         const playerCamera = player.querySelector('[camera]');
 
-        const getBoundarySize = () => {
-            const vrDisplay = player.sceneEl.renderer.xr.getSession().device;
-            const bounds = vrDisplay.stageParameters.bounds;
-            if (bounds && bounds.sizeX && bounds.sizeZ) {
-                return Math.min(bounds.sizeX, bounds.sizeZ);
-            }
-            return 1.5; // Set a default size if boundary information is unavailable
-        };
-
-        const boundarySize = getBoundarySize();
+        const boundarySize = 1.5;
         const maxBoundaryX = boundarySize / 2;
         const maxBoundaryZ = boundarySize / 2;
 
@@ -60,6 +54,25 @@
         }
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
+
+        // Adjust floor height using controllers
+        const leftController = document.querySelector('[oculus-touch-controls="hand: left"]');
+        const rightController = document.querySelector('[oculus-touch-controls="hand: right"]');
+        const floorHeightIncrement = 0.1;
+
+        leftController.addEventListener('abuttondown', () => {
+            const currentPosition = floorEntity.getAttribute('position');
+            const newPosition = { ...currentPosition };
+            newPosition.y += floorHeightIncrement;
+            floorEntity.setAttribute('position', newPosition);
+        });
+
+        rightController.addEventListener('abuttondown', () => {
+            const currentPosition = floorEntity.getAttribute('position');
+            const newPosition = { ...currentPosition };
+            newPosition.y -= floorHeightIncrement;
+            floorEntity.setAttribute('position', newPosition);
+        });
     </script>
 </body>
 </html>
