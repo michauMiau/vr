@@ -7,11 +7,6 @@
 <body>
     <a-scene vr-mode-ui="enabled: true">
         <a-sky color="#ECECEC"></a-sky>
-        <a-entity id="player" camera position="0 1.6 0" look-controls>
-            <!-- Add visible controllers -->
-            <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable" visible="true"></a-entity>
-            <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable" visible="true"></a-entity>
-        </a-entity>
         
         <!-- Visible floor at a fixed height -->
         <a-plane id="floor" position="0 -1.5 0" rotation="-90 0 0" width="10" height="10" color="#00FF00"></a-plane>
@@ -20,6 +15,10 @@
         
         <!-- Point score display -->
         <a-entity id="point-score" text="value: Points: 0; align: center; width: 3; color: #FF5733; position: 0 3 -5"></a-entity>
+        
+        <!-- WebXR hand controls -->
+        <a-entity hand-controls="left" raycaster="objects: .catchable" visible="true"></a-entity>
+        <a-entity hand-controls="right" raycaster="objects: .catchable" visible="true"></a-entity>
     </a-scene>
 
     <script>
@@ -41,7 +40,35 @@
         }
 
         function createFallingCube() {
-            // ... (rest of the createFallingCube function remains unchanged)
+            const cube = document.createElement('a-box');
+            const position = randomPosition();
+            cube.setAttribute('position', position);
+            cube.setAttribute('class', 'catchable');
+            cube.setAttribute('color', '#FF5733');
+            cube.setAttribute('width', '0.5');
+            cube.setAttribute('height', '0.5');
+            cube.setAttribute('depth', '0.5');
+            cube.addEventListener('click', () => {
+                fallingCubes.removeChild(cube);
+                pointScore += 10; // Increase point score when cube is destroyed
+                updatePointScore();
+            });
+            fallingCubes.appendChild(cube);
+
+            const fallSpeed = 0.2; // meters per second
+            const updateInterval = 16; // milliseconds (60 FPS)
+            
+            const updatePosition = () => {
+                position.y -= fallSpeed * (updateInterval / 1000); // Update y position based on fallSpeed and time interval
+                cube.setAttribute('position', position);
+                if (position.y < -1.5) { // If cube falls below the floor, destroy it
+                    fallingCubes.removeChild(cube);
+                } else {
+                    setTimeout(updatePosition, updateInterval);
+                }
+            };
+            
+            updatePosition();
         }
 
         function updatePointScore() {
@@ -50,39 +77,6 @@
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
         updatePointScore();
-
-        // Define controller entities
-        const leftControllerEntity = document.querySelector('[oculus-touch-controls="hand: left"]');
-        const rightControllerEntity = document.querySelector('[oculus-touch-controls="hand: right"]');
-
-        // Define the XR session and reference space
-        let xrSession;
-        let referenceSpace;
-
-        // Request XR session and initialize the loop
-        async function initXR() {
-            if ('xr' in navigator) {
-                const session = await navigator.xr.requestSession('immersive-vr');
-                xrSession = session;
-                referenceSpace = await session.requestReferenceSpace('local-floor');
-    
-                // Start the animation loop
-                animate();
-            } else {
-                console.error('WebXR not supported');
-            }
-        }
-
-        // Inside the XR session loop
-        function animate() {
-            if (xrSession) {
-                const frame = xrSession.requestAnimationFrame(animate);
-                updateControllerPositions(frame);
-            }
-        }
-
-        // Call the XR initialization function
-        initXR();
     </script>
 </body>
 </html>
