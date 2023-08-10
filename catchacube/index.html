@@ -14,8 +14,8 @@
         <a-entity id="falling-cubes"></a-entity>
         
         <!-- Oculus Touch controllers -->
-        <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable" visible="true"></a-entity>
-        <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable" visible="true"></a-entity>
+        <a-entity id="leftController" oculus-touch-controls="hand: left" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable" visible="true"></a-entity>
+        <a-entity id="rightController" oculus-touch-controls="hand: right" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable" visible="true"></a-entity>
         
         <!-- Points counter displayed on the sky -->
         <a-text id="point-score-sky" value="Points: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
@@ -72,19 +72,21 @@
             pointScoreEntity.setAttribute('value', `Points: ${pointScore}`);
         }
 
-        // Collision event listener
-        document.addEventListener('collisionstart', (event) => {
-            const { detail } = event;
-            const { els } = detail;
-            if (els.length > 0) {
-                const hitCube = els[0];
-                if (hitCube.classList.contains('catchable')) {
-                    fallingCubes.removeChild(hitCube);
-                    pointScore += 10;
-                    updatePointScore();
-                }
+        // Collision event listeners for the Oculus controllers
+        const leftController = document.querySelector('#leftController');
+        const rightController = document.querySelector('#rightController');
+
+        leftController.addEventListener('collidestart', (event) => handleCollision(event, leftController));
+        rightController.addEventListener('collidestart', (event) => handleCollision(event, rightController));
+
+        function handleCollision(event, controller) {
+            const collidedCube = event.detail.body.el;
+            if (collidedCube.classList.contains('catchable')) {
+                fallingCubes.removeChild(collidedCube);
+                pointScore += 10;
+                updatePointScore();
             }
-        });
+        }
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
         updatePointScore();
