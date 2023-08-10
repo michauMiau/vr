@@ -18,13 +18,19 @@
         <a-plane id="floor" position="0 -1.5 0" rotation="-90 0 0" width="10" height="10" color="#00FF00"></a-plane>
         
         <a-entity id="falling-cubes"></a-entity>
+        
+        <!-- Point score display -->
+        <a-entity id="point-score" text="value: Points: 0; align: center; width: 3; color: #FF5733; position: 0 3 -5"></a-entity>
     </a-scene>
 
     <script>
         const fallingCubes = document.querySelector('#falling-cubes');
         const floorEntity = document.querySelector('#floor');
+        const pointScoreEntity = document.querySelector('#point-score');
         const player = document.querySelector('#player');
         const playerCamera = player.querySelector('[camera]');
+
+        let pointScore = 0;
 
         const boundarySize = 1.5;
         const maxBoundaryX = boundarySize / 2;
@@ -49,11 +55,33 @@
             cube.setAttribute('depth', '0.5');
             cube.addEventListener('click', () => {
                 fallingCubes.removeChild(cube);
+                pointScore += 10; // Increase point score when cube is destroyed
+                updatePointScore();
             });
             fallingCubes.appendChild(cube);
+
+            const fallSpeed = 0.2; // meters per second
+            const updateInterval = 16; // milliseconds (60 FPS)
+            
+            const updatePosition = () => {
+                position.y -= fallSpeed * (updateInterval / 1000); // Update y position based on fallSpeed and time interval
+                cube.setAttribute('position', position);
+                if (position.y < -1.5) { // If cube falls below the floor, destroy it
+                    fallingCubes.removeChild(cube);
+                } else {
+                    setTimeout(updatePosition, updateInterval);
+                }
+            };
+            
+            updatePosition();
+        }
+
+        function updatePointScore() {
+            pointScoreEntity.setAttribute('text', `value: Points: ${pointScore}; align: center; width: 3; color: #FF5733; position: 0 3 -5`);
         }
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
+        updatePointScore();
 
         // Adjust floor height using controllers
         const leftController = document.querySelector('[oculus-touch-controls="hand: left"]');
