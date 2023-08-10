@@ -5,7 +5,7 @@
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 </head>
 <body>
-     <button id="vr-button">Enter this reality</button>
+    <button id="vr-button">Enter this reality</button>
     <a-scene vr-mode-ui="enabled: false">
         <a-sky color="#ECECEC"></a-sky>
         <a-entity id="player" camera position="0 1.6 0" look-controls>
@@ -13,9 +13,10 @@
         </a-entity>
         
         <a-entity id="falling-cubes"></a-entity>
-   
+    </a-scene>
 
     <script>
+        const vrButton = document.querySelector('#vr-button');
         const scene = document.querySelector('a-scene');
         const player = document.querySelector('#player');
         const fallingCubes = document.querySelector('#falling-cubes');
@@ -45,9 +46,6 @@
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
 
-        const vrButton = document.querySelector('#vr-button');
-        const scene = document.querySelector('a-scene');
-
         vrButton.addEventListener('click', () => {
             if (scene.is('vr-mode')) {
                 scene.exitVR();
@@ -57,7 +55,6 @@
                 vrButton.textContent = 'Exit VR';
             }
         });
-    </script> 
-</a-scene>
+    </script>
 </body>
 </html>
