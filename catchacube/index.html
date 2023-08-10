@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Catchacub</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+<body>
+     <button id="vr-button">Enter this reality</button>
+    <a-scene vr-mode-ui="enabled: false">
+        <a-sky color="#ECECEC"></a-sky>
+        <a-entity id="player" camera position="0 1.6 0" look-controls>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .catchable" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: black; shader: flat"></a-entity>
+        </a-entity>
+        
+        <a-entity id="falling-cubes"></a-entity>
+    </a-scene>
+
+    <script>
+        const scene = document.querySelector('a-scene');
+        const player = document.querySelector('#player');
+        const fallingCubes = document.querySelector('#falling-cubes');
+
+        function randomPosition() {
+            return {
+                x: (Math.random() - 0.5) * 4,
+                y: 3,
+                z: (Math.random() - 0.5) * 4
+            };
+        }
+
+        function createFallingCube() {
+            const cube = document.createElement('a-box');
+            const position = randomPosition();
+            cube.setAttribute('position', position);
+            cube.setAttribute('class', 'catchable');
+            cube.setAttribute('color', '#FF5733');
+            cube.setAttribute('width', '0.5');
+            cube.setAttribute('height', '0.5');
+            cube.setAttribute('depth', '0.5');
+            cube.addEventListener('click', () => {
+                fallingCubes.removeChild(cube);
+            });
+            fallingCubes.appendChild(cube);
+        }
+
+        setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
+
+        const vrButton = document.querySelector('#vr-button');
+        const scene = document.querySelector('a-scene');
+
+        vrButton.addEventListener('click', () => {
+            if (scene.is('vr-mode')) {
+                scene.exitVR();
+                vrButton.textContent = 'Enter VR';
+            } else {
+                scene.enterVR();
+                vrButton.textContent = 'Exit VR';
+            }
+        });
+    </script>
+</body>
+</html>
