@@ -14,8 +14,8 @@
         <a-entity id="falling-cubes"></a-entity>
         
         <!-- Oculus Touch controllers -->
-        <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable"></a-entity>
-        <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable"></a-entity>
+        <a-entity oculus-touch-controls="hand: left" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable" visible="true"></a-entity>
+        <a-entity oculus-touch-controls="hand: right" raycaster="objects: .catchable" collision-filter="collisionForces: true; collidesWith: .catchable" visible="true"></a-entity>
         
         <!-- Points counter displayed on the sky -->
         <a-text id="point-score-sky" value="Points: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
@@ -73,7 +73,7 @@
         }
 
         // Collision event listener
-        document.addEventListener('collisions', (event) => {
+        document.addEventListener('collisionstart', (event) => {
             const { detail } = event;
             const { els } = detail;
             if (els.length > 0) {
