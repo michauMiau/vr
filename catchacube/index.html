@@ -81,6 +81,36 @@
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
         updatePointScore();
+
+        const leftControllerEntity = document.querySelector('[oculus-touch-controls="hand: left"]');
+    const rightControllerEntity = document.querySelector('[oculus-touch-controls="hand: right"]');
+
+    // Define a function to update controller positions
+    function updateControllerPositions(frame) {
+        const leftControllerPose = frame.getPose(controllerLeft.inputSource.targetRaySpace, referenceSpace);
+        const rightControllerPose = frame.getPose(controllerRight.inputSource.targetRaySpace, referenceSpace);
+        
+        if (leftControllerPose) {
+            leftControllerEntity.setAttribute('position', leftControllerPose.transform.position);
+            leftControllerEntity.setAttribute('rotation', leftControllerPose.transform.orientation);
+        }
+        
+        if (rightControllerPose) {
+            rightControllerEntity.setAttribute('position', rightControllerPose.transform.position);
+            rightControllerEntity.setAttribute('rotation', rightControllerPose.transform.orientation);
+        }
+    }
+
+    // Inside the XR session loop
+    function animate() {
+        if (xrSession) {
+            const frame = xrSession.requestAnimationFrame(animate);
+            updateControllerPositions(frame);
+        }
+    }
+
+    // Start the animation loop
+    animate();
     </script>
 </body>
 </html>
