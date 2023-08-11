@@ -3,6 +3,7 @@
 <head>
     <title>Catchacub</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/super-hands@2.0.2/dist/super-hands.min.js"></script>
     <script src="https://aframe.io/releases/1.2.0/aframe-physics-system.min.js"></script>
 </head>
 <body>
@@ -14,20 +15,19 @@
         
         <a-entity id="falling-cubes"></a-entity>
         
-        <!-- Oculus Touch controllers -->
-        <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true" static-body></a-entity>
-        <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true" static-body></a-entity>
+        <!-- Oculus Touch controllers with super-hands component -->
+        <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true"
+                  super-hands="colliderEvent: collisions; colliderEventProperty: els; colliderEndEvent: collisions; colliderEndEventProperty: clearedEls"></a-entity>
+        <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true"
+                  super-hands="colliderEvent: collisions; colliderEventProperty: els; colliderEndEvent: collisions; colliderEndEventProperty: clearedEls"></a-entity>
         
         <!-- Points counter displayed on the sky -->
-        <a-text id="point-score-sky" value="Points: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
+        <a-text id="point-score-sky" value="Points.: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
     </a-scene>
 
     <script>
         const fallingCubes = document.querySelector('#falling-cubes');
         const pointScoreEntity = document.querySelector('#point-score-sky');
-        const leftController = document.querySelector('#leftController');
-        const rightController = document.querySelector('#rightController');
-
         let pointScore = 0;
 
         function randomPosition() {
@@ -73,21 +73,6 @@
 
         // Collision event listener between cubes and controllers
         fallingCubes.addEventListener('collide', (event) => {
-            const collidedCube = event.detail.body.el;
-            fallingCubes.removeChild(collidedCube);
-            pointScore += 10;
-            updatePointScore();
-        });
-
-        // Collision event listener between controllers and cubes
-        leftController.addEventListener('collide', (event) => {
-            const collidedCube = event.detail.body.el;
-            fallingCubes.removeChild(collidedCube);
-            pointScore += 10;
-            updatePointScore();
-        });
-
-        rightController.addEventListener('collide', (event) => {
             const collidedCube = event.detail.body.el;
             fallingCubes.removeChild(collidedCube);
             pointScore += 10;
