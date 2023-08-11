@@ -27,18 +27,11 @@
 
         let pointScore = 0;
 
-        const boundarySize = 1.5;
-        const maxBoundaryX = boundarySize / 2;
-        const maxBoundaryZ = boundarySize / 2;
-
-        const leftController = document.querySelector('#leftController');
-        const rightController = document.querySelector('#rightController');
-
         function randomPosition() {
             return {
-                x: (Math.random() - 0.5) * maxBoundaryX * 2,
+                x: Math.random() * 4 - 2,
                 y: 3,
-                z: (Math.random() - 0.5) * maxBoundaryZ * 2
+                z: Math.random() * 4 - 2
             };
         }
 
@@ -75,15 +68,26 @@
             pointScoreEntity.setAttribute('value', `Points: ${pointScore}`);
         }
 
-        function checkCollisions(controller) {
-            const intersectedCubes = controller.components['oculus-touch-controls'].intersectedEls;
-            for (const cube of intersectedCubes) {
-                if (cube.classList.contains('cube')) {
+        // Collision check function
+        function checkCollisions() {
+            const leftController = document.querySelector('#leftController');
+            const rightController = document.querySelector('#rightController');
+            const cubes = document.querySelectorAll('.cube');
+
+            cubes.forEach(cube => {
+                const cubePosition = cube.getAttribute('position');
+                const leftControllerPosition = leftController.getAttribute('position');
+                const rightControllerPosition = rightController.getAttribute('position');
+
+                const leftDistance = leftControllerPosition.distanceTo(cubePosition);
+                const rightDistance = rightControllerPosition.distanceTo(cubePosition);
+
+                if (leftDistance < 0.25 || rightDistance < 0.25) {
                     fallingCubes.removeChild(cube);
                     pointScore += 10;
                     updatePointScore();
                 }
-            }
+            });
         }
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
@@ -91,13 +95,8 @@
 
         // Check for collisions on every frame
         const sceneEl = document.querySelector('a-scene');
-        sceneEl.addEventListener('loaded', () => {
-            sceneEl.addEventListener('enter-vr', () => {
-                sceneEl.addEventListener('renderstart', () => {
-                    checkCollisions(leftController);
-                    checkCollisions(rightController);
-                });
-            });
+        sceneEl.addEventListener('enter-vr', () => {
+            sceneEl.addEventListener('renderstart', checkCollisions);
         });
     </script>
 </body>
