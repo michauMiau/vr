@@ -46,22 +46,6 @@
             cube.setAttribute('depth', '0.5');
             cube.setAttribute('dynamic-body', 'shape: box');
             fallingCubes.appendChild(cube);
-
-            const fallSpeed = 0.02; // meters per update
-            const updateInterval = 16; // milliseconds (60 FPS)
-            
-            const updatePosition = () => {
-                position.y -= fallSpeed;
-                cube.setAttribute('position', position);
-                if (position.y < -1.5) {
-                    fallingCubes.removeChild(cube);
-                    updatePointScore();
-                } else {
-                    setTimeout(updatePosition, updateInterval);
-                }
-            };
-            
-            updatePosition();
         }
 
         function updatePointScore() {
@@ -70,9 +54,9 @@
         }
 
         fallingCubes.addEventListener('collide', (event) => {
-            const collidedCube = event.detail.target.el;
-            if (collidedCube.parentNode === fallingCubes) {
-                fallingCubes.removeChild(collidedCube);
+            const otherEntity = event.detail.body.el;
+            if (otherEntity.classList.contains('cube')) {
+                fallingCubes.removeChild(otherEntity);
                 updatePointScore();
             }
         });
