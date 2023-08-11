@@ -4,8 +4,6 @@
     <title>Catchacub</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://aframe.io/releases/1.2.0/aframe-physics-system.min.js"></script>
-    <script src="https://unpkg.com/super-hands@2.0.2/dist/super-hands.min.js"></script>
-    <script src="https://unpkg.com/aframe-physics-extras@0.1.2/dist/aframe-physics-extras.min.js"></script>
 </head>
 <body>
     <a-scene physics="debug: true; friction: 0.2; restitution: 0.8; gravity: -9.8">
@@ -17,30 +15,18 @@
         <a-entity id="falling-cubes"></a-entity>
         
         <!-- Oculus Touch controllers -->
-        <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true" mixin="controller" dynamic-body></a-entity>
-        <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true" mixin="controller" dynamic-body></a-entity>
+        <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true" static-body></a-entity>
+        <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true" static-body></a-entity>
         
         <!-- Points counter displayed on the sky -->
         <a-text id="point-score-sky" value="Points: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
-        
-        <a-assets>
-            <a-mixin id="controller"
-               physics-collider
-               dynamic-body
-               shape: sphere; sphereRadius: 0.02"
-               super-hands="colliderEvent: collisions;
-                            colliderEventProperty: els;
-                            colliderEndEvent: collisions;
-                            colliderEndEventProperty: clearedEls"
-               collision-filter="group: hands;
-                                collidesWith: falling-cubes">
-            </a-mixin>
-        </a-assets>
     </a-scene>
 
     <script>
         const fallingCubes = document.querySelector('#falling-cubes');
         const pointScoreEntity = document.querySelector('#point-score-sky');
+        const leftController = document.querySelector('#leftController');
+        const rightController = document.querySelector('#rightController');
 
         let pointScore = 0;
 
@@ -65,12 +51,27 @@
 
             const fallSpeed = 0.2; // meters per second
             const updateInterval = 16; // milliseconds (60 FPS)
+            
+            const updatePosition = () => {
+                position.y -= fallSpeed * (updateInterval / 1000); // Update y position based on fallSpeed and time interval
+                cube.setAttribute('position', position);
+                if (position.y < -1.5) { // If cube falls below the floor, destroy it and deduct points
+                    fallingCubes.removeChild(cube);
+                    pointScore -= 5; // Deduct points when cube is destroyed by touching the floor
+                    updatePointScore();
+                } else {
+                    setTimeout(updatePosition, updateInterval);
+                }
+            };
+            
+            updatePosition();
         }
 
         function updatePointScore() {
             pointScoreEntity.setAttribute('value', `Points: ${pointScore}`);
         }
 
+        // Collision event listener between cubes and controllers
         fallingCubes.addEventListener('collide', (event) => {
             const collidedCube = event.detail.body.el;
             fallingCubes.removeChild(collidedCube);
@@ -78,7 +79,22 @@
             updatePointScore();
         });
 
-        setInterval(createFallingCube, 2000);
+        // Collision event listener between controllers and cubes
+        leftController.addEventListener('collide', (event) => {
+            const collidedCube = event.detail.body.el;
+            fallingCubes.removeChild(collidedCube);
+            pointScore += 10;
+            updatePointScore();
+        });
+
+        rightController.addEventListener('collide', (event) => {
+            const collidedCube = event.detail.body.el;
+            fallingCubes.removeChild(collidedCube);
+            pointScore += 10;
+            updatePointScore();
+        });
+
+        setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
         updatePointScore();
     </script>
 </body>
