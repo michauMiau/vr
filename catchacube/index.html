@@ -3,26 +3,23 @@
 <head>
     <title>Catchacub</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/super-hands@2.0.2/dist/super-hands.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@6.1.0/dist/aframe-physics-system.min.js"></script>
 </head>
 <body>
     <a-scene physics="debug: true; friction: 0.2; restitution: 0.8; gravity: -9.8">
         <a-sky color="#ECECEC"></a-sky>
         
         <!-- Visible floor at a fixed height -->
-        <a-plane id="floor" position="0 -1.5 0" rotation="-90 0 0" width="10" height="10" color="#00FF00"></a-plane>
+        <a-plane id="floor" position="0 -1.5 0" rotation="-90 0 0" width="10" height="10" color="#00FF00" static-body></a-plane>
         
         <a-entity id="falling-cubes"></a-entity>
         
-        <!-- Oculus Touch controllers with super-hands component -->
-        <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true"
-                  super-hands="colliderEvent: collisions; colliderEventProperty: els; colliderEndEvent: collisions; colliderEndEventProperty: clearedEls"></a-entity>
-        <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true"
-                  super-hands="colliderEvent: collisions; colliderEventProperty: els; colliderEndEvent: collisions; colliderEndEventProperty: clearedEls"></a-entity>
+        <!-- Oculus Touch controllers -->
+        <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true" static-body></a-entity>
+        <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true" static-body></a-entity>
         
         <!-- Points counter displayed on the sky -->
-        <a-text id="point-score-sky" value="Pointsz: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
+        <a-text id="point-score-sky" value="Points: 0" align="center" width="6" color="#FF5733" position="0 2 -4"></a-text>
     </a-scene>
 
     <script>
@@ -47,6 +44,7 @@
             cube.setAttribute('width', '0.5');
             cube.setAttribute('height', '0.5');
             cube.setAttribute('depth', '0.5');
+            cube.setAttribute('dynamic-body', ''); // Use dynamic-body for cubes
             fallingCubes.appendChild(cube);
 
             const fallSpeed = 0.2; // meters per second
