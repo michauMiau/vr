@@ -45,6 +45,11 @@
             cube.setAttribute('height', '0.5');
             cube.setAttribute('depth', '0.5');
             cube.setAttribute('dynamic-body', ''); // Use dynamic-body for cubes
+            cube.addEventListener('collide', (event) => {
+                removeCube(cube);
+                pointScore += 10;
+                updatePointScore();
+            });
             fallingCubes.appendChild(cube);
 
             const fallSpeed = 0.2; // meters per second
@@ -54,7 +59,7 @@
                 position.y -= fallSpeed * (updateInterval / 1000); // Update y position based on fallSpeed and time interval
                 cube.setAttribute('position', position);
                 if (position.y < -1.5) { // If cube falls below the floor, destroy it and deduct points
-                    fallingCubes.removeChild(cube);
+                    removeCube(cube);
                     pointScore -= 5; // Deduct points when cube is destroyed by touching the floor
                     updatePointScore();
                 } else {
@@ -66,16 +71,12 @@
         }
 
         function updatePointScore() {
-            pointScoreEntity.setAttribute('value', `Pointms: ${pointScore}`);
+            pointScoreEntity.setAttribute('value', `Points: ${pointScore}`);
         }
 
-        // Collision event listener between cubes and controllers
-        fallingCubes.addEventListener('collide', (event) => {
-            const collidedCube = event.detail.body.el;
-            fallingCubes.removeChild(collidedCube);
-            pointScore += 10;
-            updatePointScore();
-        });
+        function removeCube(cube) {
+            cube.parentNode.removeChild(cube);
+        }
 
         setInterval(createFallingCube, 2000); // Create a new cube every 2 seconds
         updatePointScore();
