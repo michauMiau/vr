@@ -14,7 +14,7 @@
         
         <a-entity id="falling-cubes"></a-entity>
         
-        <!-- Oculus Touch controllers with super-hands component -->
+        <!-- Oculus Touch controllers -->
         <a-entity id="leftController" oculus-touch-controls="hand: left" visible="true" static-body></a-entity>
         <a-entity id="rightController" oculus-touch-controls="hand: right" visible="true" static-body></a-entity>
         
@@ -55,7 +55,6 @@
                 cube.setAttribute('position', position);
                 if (position.y < -1.5) {
                     fallingCubes.removeChild(cube);
-                    pointScore -= 5;
                     updatePointScore();
                 } else {
                     setTimeout(updatePosition, updateInterval);
@@ -66,14 +65,16 @@
         }
 
         function updatePointScore() {
+            pointScore += 10;
             pointScoreEntity.setAttribute('value', `Points: ${pointScore}`);
         }
 
         fallingCubes.addEventListener('collide', (event) => {
             const collidedCube = event.detail.target.el;
-            fallingCubes.removeChild(collidedCube);
-            pointScore += 10;
-            updatePointScore();
+            if (collidedCube.parentNode === fallingCubes) {
+                fallingCubes.removeChild(collidedCube);
+                updatePointScore();
+            }
         });
 
         setInterval(createFallingCube, 2000);
